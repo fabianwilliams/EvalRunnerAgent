@@ -1,0 +1,18 @@
+[
+    {
+      "Input": "What is the capital city of the United States?",
+      "GroundTruth": "Washington, D.C.",
+      "EvalCriteria": "Answer must exactly match 'Washington, D.C.'."
+    },
+    {
+      "Input": "Summarize this: 'The vendor rejected the proposed terms.'",
+      "GroundTruth": "Vendor rejected the proposal.",
+      "EvalCriteria": "Summary must preserve key decision outcome."
+    },
+    {
+      "Input": "What's 5 multiplied by 6?",
+      "GroundTruth": "30",
+      "EvalCriteria": "Answer must match 30 exactly."
+    }
+  ]
+  
