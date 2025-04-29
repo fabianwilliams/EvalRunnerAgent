@@ -7,6 +7,7 @@ namespace EvalRunnerAgent.Models
         public string ModelOutput { get; set; }
         public double SimilarityScore { get; set; }
         public bool Passed { get; set; }
+        public double ThresholdUsed { get; set; }
         public string Notes { get; set; }
     }
 }

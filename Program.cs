@@ -6,12 +6,26 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Text.Json;
 
+
+
 namespace EvalRunnerAgent;
 
 class Program
 {
     static async Task Main(string[] args)
     {
+        // Adding flexibility for tuning the pass criteria: parse --threshold from command line
+        double? thresholdOverride = null;
+        for (int i = 0; i < args.Length - 1; i++)
+        {
+            if (args[i] == "--threshold" && double.TryParse(args[i + 1], out double parsed))
+            {
+                thresholdOverride = parsed;
+                Console.WriteLine($"📏 Overriding similarity threshold: {thresholdOverride}");
+                break;
+            }
+        }
+
         Console.WriteLine("🚀 Starting Evaluation Agent...");
 
         // Load Configuration
@@ -23,7 +37,7 @@ class Program
         var openAiSection = configuration.GetSection("OpenAI");
         var openAiKey = openAiSection["ApiKey"];
         var modelId = openAiSection["ModelId"];
-        var embeddingModel = openAiSection["EmbeddingModel"]; // ✅ Needed for semantic eval
+        var embeddingModel = openAiSection["EmbeddingModel"];
 
         // 🔐 Validate config values BEFORE using them
         if (string.IsNullOrEmpty(openAiKey) || string.IsNullOrEmpty(modelId) || string.IsNullOrEmpty(embeddingModel))
@@ -32,10 +46,11 @@ class Program
             return;
         }
 
+        var configThreshold = configuration.GetValue<double>("Eval:SimilarityThreshold", 0.85);
+        var threshold = thresholdOverride ?? configThreshold;
+
         var builder = Kernel.CreateBuilder();
-        builder.AddOpenAIChatCompletion(
-            modelId: modelId,
-            apiKey: openAiKey);
+        builder.AddOpenAIChatCompletion(modelId: modelId, apiKey: openAiKey);
         var kernel = builder.Build();
 
         // Load evals
@@ -57,10 +72,7 @@ class Program
                 try
                 {
                     response = await chat.GetChatMessageContentAsync(
-                        new ChatHistory
-                        {
-                            new ChatMessageContent(AuthorRole.User, eval.Input)
-                        });
+                        new ChatHistory { new ChatMessageContent(AuthorRole.User, eval.Input) });
 
                     if (response != null)
                         break;
@@ -68,10 +80,7 @@ class Program
                 catch (Exception ex)
                 {
                     Console.WriteLine($"⚠️ Attempt {attempt} failed: {ex.Message}");
-                    if (attempt < maxRetries)
-                    {
-                        await Task.Delay(retryDelayMs);
-                    }
+                    if (attempt < maxRetries) await Task.Delay(retryDelayMs);
                 }
             }
 
@@ -82,8 +91,9 @@ class Program
             }
 
             var modelOutput = response.Content.Trim();
-            //bool passed = EvaluateOutput(modelOutput, eval.GroundTruth); // Old evaluation method that does not use Cosine similarity
-            var (passed, score) = await EvaluateOutputAsync(modelOutput, eval.GroundTruth, embeddingModel, openAiKey);
+
+            // ✅ Explicitly deconstruct return type to fix CS8130
+            (bool passed, double score) = await EvaluateOutputAsync(modelOutput, eval.GroundTruth, embeddingModel, openAiKey, threshold);
 
             results.Add(new EvalResult
             {
@@ -91,6 +101,7 @@ class Program
                 GroundTruth = eval.GroundTruth,
                 ModelOutput = modelOutput,
                 Passed = passed,
+                ThresholdUsed = threshold,
                 SimilarityScore = score,
                 Notes = passed ? "✅ Pass" : "❌ Fail"
             });
