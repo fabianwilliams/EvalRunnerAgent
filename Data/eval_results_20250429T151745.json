@@ -1,0 +1,26 @@
+[
+  {
+    "Input": "What is the capital city of the United States?",
+    "GroundTruth": "Washington, D.C.",
+    "ModelOutput": "The capital city of the United States is Washington, D.C.",
+    "SimilarityScore": 0.9184136318628198,
+    "Passed": true,
+    "Notes": "\u2705 Pass"
+  },
+  {
+    "Input": "Summarize this: \u0027The vendor rejected the proposed terms.\u0027",
+    "GroundTruth": "Vendor rejected the proposal.",
+    "ModelOutput": "The vendor did not accept the proposed terms.",
+    "SimilarityScore": 0.9231861152419257,
+    "Passed": true,
+    "Notes": "\u2705 Pass"
+  },
+  {
+    "Input": "What\u0027s 5 multiplied by 6?",
+    "GroundTruth": "30",
+    "ModelOutput": "5 multiplied by 6 is 30.",
+    "SimilarityScore": 0.810819916102483,
+    "Passed": false,
+    "Notes": "\u274C Fail"
+  }
+]

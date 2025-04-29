@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using EvalRunnerAgent.Models;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Text.Json;
 
 namespace EvalRunnerAgent;
@@ -21,10 +23,12 @@ class Program
         var openAiSection = configuration.GetSection("OpenAI");
         var openAiKey = openAiSection["ApiKey"];
         var modelId = openAiSection["ModelId"];
+        var embeddingModel = openAiSection["EmbeddingModel"]; // ✅ Needed for semantic eval
 
-        if (string.IsNullOrEmpty(openAiKey))
+        // 🔐 Validate config values BEFORE using them
+        if (string.IsNullOrEmpty(openAiKey) || string.IsNullOrEmpty(modelId) || string.IsNullOrEmpty(embeddingModel))
         {
-            Console.WriteLine("❌ OpenAI API key not found in appsettings.json. Exiting.");
+            Console.WriteLine("❌ Missing OpenAI config. Check appsettings.json.");
             return;
         }
 
@@ -78,7 +82,8 @@ class Program
             }
 
             var modelOutput = response.Content.Trim();
-            bool passed = EvaluateOutput(modelOutput, eval.GroundTruth);
+            //bool passed = EvaluateOutput(modelOutput, eval.GroundTruth); // Old evaluation method that does not use Cosine similarity
+            var (passed, score) = await EvaluateOutputAsync(modelOutput, eval.GroundTruth, embeddingModel, openAiKey);
 
             results.Add(new EvalResult
             {
@@ -86,6 +91,7 @@ class Program
                 GroundTruth = eval.GroundTruth,
                 ModelOutput = modelOutput,
                 Passed = passed,
+                SimilarityScore = score,
                 Notes = passed ? "✅ Pass" : "❌ Fail"
             });
         }
@@ -113,6 +119,7 @@ class Program
         return JsonSerializer.Deserialize<List<EvalInput>>(json) ?? new List<EvalInput>();
     }
 
+    /* Removing in favor of one that will now work with my Cosine similarity function
     static bool EvaluateOutput(string modelOutput, string groundTruth)
     {
         if (string.IsNullOrWhiteSpace(modelOutput) || string.IsNullOrWhiteSpace(groundTruth))
@@ -122,5 +129,55 @@ class Program
         var cleanGroundTruth = groundTruth.Trim().ToLowerInvariant();
 
         return cleanOutput.Contains(cleanGroundTruth);
+    }
+    */
+
+    // ✅ Embedding support via OpenAITextEmbeddingGenerationService
+#pragma warning disable SKEXP0010
+    static async Task<(bool passed, double score)> EvaluateOutputAsync(
+        string modelOutput,
+        string groundTruth,
+        string embeddingModel,
+        string openAiKey,
+        double threshold = 0.85)
+    {
+        if (string.IsNullOrWhiteSpace(modelOutput) || string.IsNullOrWhiteSpace(groundTruth))
+            return (false, 0.0);
+
+        var embeddingService = new OpenAITextEmbeddingGenerationService(embeddingModel, openAiKey);
+
+        var embeddingTasks = await Task.WhenAll(
+            embeddingService.GenerateEmbeddingAsync(modelOutput),
+            embeddingService.GenerateEmbeddingAsync(groundTruth)
+        );
+
+        // Convert ReadOnlyMemory<float> → double[] for cosine similarity
+        var vectorA = embeddingTasks[0].ToArray().Select(x => (double)x).ToArray();
+        var vectorB = embeddingTasks[1].ToArray().Select(x => (double)x).ToArray();
+
+        var score = CosineSimilarity(vectorA, vectorB);
+        Console.WriteLine($"🧠 Similarity Score: {score:F4}");
+
+        return (score >= threshold, score);
+    }
+#pragma warning restore SKEXP0010
+
+    static double CosineSimilarity(double[] vectorA, double[] vectorB)
+    {
+        double dot = 0.0;
+        double magA = 0.0;
+        double magB = 0.0;
+
+        for (int i = 0; i < vectorA.Length; i++)
+        {
+            dot += vectorA[i] * vectorB[i];
+            magA += Math.Pow(vectorA[i], 2);
+            magB += Math.Pow(vectorB[i], 2);
+        }
+
+        magA = Math.Sqrt(magA);
+        magB = Math.Sqrt(magB);
+
+        return dot / (magA * magB);
     }
 }
