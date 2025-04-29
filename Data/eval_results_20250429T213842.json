@@ -1,0 +1,35 @@
+[
+  {
+    "Input": "What is the capital city of the Maryland?",
+    "GroundTruth": "The capital is Annapolis",
+    "ModelOutput": "The capital city of Maryland is Annapolis.",
+    "Passed": true,
+    "ThresholdUsed": 0.75,
+    "SimilarityScore": 0.7940661565874697,
+    "GroundTruthScore": 0.8817411364080913,
+    "CriteriaScore": 0.5894912036726864,
+    "Notes": "\u2705 Pass"
+  },
+  {
+    "Input": "Summarize this: \u0027The vendor rejected the proposed terms.\u0027",
+    "GroundTruth": "Vendor rejected the proposal.",
+    "ModelOutput": "The vendor said no to the proposed agreement.",
+    "Passed": false,
+    "ThresholdUsed": 0.75,
+    "SimilarityScore": 0.5129078287492468,
+    "GroundTruthScore": 0.6586047336802785,
+    "CriteriaScore": 0.1729483839101729,
+    "Notes": "\u274C Fail"
+  },
+  {
+    "Input": "Calculate 5 multiplied by 6?",
+    "GroundTruth": "30",
+    "ModelOutput": "The product of two numbers are calculated as ,\nProduct = Multiplicand \u00D7 Multiplier\nHere,\nMultiplicand (M) = 5\nMultiplier \u00A0(m) = 6\nTherefore,\nProduct = 5 \u00D7 6 = 30\nTherefore, the product of 15 and 36 is 540.",
+    "Passed": false,
+    "ThresholdUsed": 0.75,
+    "SimilarityScore": 0.19790549927011208,
+    "GroundTruthScore": 0.18392971602774535,
+    "CriteriaScore": 0.23051566016896785,
+    "Notes": "\u274C Fail"
+  }
+]

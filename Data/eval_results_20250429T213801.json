@@ -1,0 +1,35 @@
+[
+  {
+    "Input": "What is the capital city of the Maryland?",
+    "GroundTruth": "The capital is Annapolis",
+    "ModelOutput": "The capital city of Maryland is Annapolis.",
+    "Passed": true,
+    "ThresholdUsed": 0.75,
+    "SimilarityScore": 0.8736390830635312,
+    "GroundTruthScore": 0.9332085562967436,
+    "CriteriaScore": 0.734643645519369,
+    "Notes": "\u2705 Pass"
+  },
+  {
+    "Input": "Summarize this: \u0027The vendor rejected the proposed terms.\u0027",
+    "GroundTruth": "Vendor rejected the proposal.",
+    "ModelOutput": "The vendor said no to the suggested agreement.",
+    "Passed": false,
+    "ThresholdUsed": 0.75,
+    "SimilarityScore": 0.708304893291811,
+    "GroundTruthScore": 0.8462991922790177,
+    "CriteriaScore": 0.3863181956549953,
+    "Notes": "\u274C Fail"
+  },
+  {
+    "Input": "Calculate 5 multiplied by 6?",
+    "GroundTruth": "30",
+    "ModelOutput": "The result of multiplying 5 by 6 is:\n5 \u00D7 6 = 30",
+    "Passed": false,
+    "ThresholdUsed": 0.75,
+    "SimilarityScore": 0.5984465990186391,
+    "GroundTruthScore": 0.6054304975679043,
+    "CriteriaScore": 0.5821508357370202,
+    "Notes": "\u274C Fail"
+  }
+]

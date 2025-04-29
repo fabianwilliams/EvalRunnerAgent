@@ -1,13 +1,16 @@
-namespace EvalRunnerAgent.Models
+namespace EvalRunnerAgent.Models;
+
+public class EvalResult
 {
-    public class EvalResult
-    {
-        public string Input { get; set; }
-        public string GroundTruth { get; set; }
-        public string ModelOutput { get; set; }
-        public double SimilarityScore { get; set; }
-        public bool Passed { get; set; }
-        public double ThresholdUsed { get; set; }
-        public string Notes { get; set; }
-    }
+    public required string Input { get; set; }
+    public required string GroundTruth { get; set; }
+    public required string ModelOutput { get; set; }
+
+    public bool Passed { get; set; }
+    public double ThresholdUsed { get; set; }
+    public double SimilarityScore { get; set; }
+    public double GroundTruthScore { get; set; }
+    public double CriteriaScore { get; set; }
+
+    public required string Notes { get; set; }
 }

@@ -1,9 +1,8 @@
-namespace EvalRunnerAgent.Models
+namespace EvalRunnerAgent.Models;
+
+public class EvalInput
 {
-    public class EvalInput
-    {
-        public string? Input { get; set; }
-        public string? GroundTruth { get; set; }
-        public string EvalCriteria { get; set; }
-    }
+    public required string Input { get; set; }
+    public required string GroundTruth { get; set; }
+    public required string EvalCriteria { get; set; }
 }

@@ -1,8 +1,8 @@
 [
     {
-      "Input": "What is the capital city of the United States?",
-      "GroundTruth": "Washington, D.C.",
-      "EvalCriteria": "Answer must exactly match 'Washington, D.C.'."
+      "Input": "What is the capital city of the Maryland?",
+      "GroundTruth": "The capital is Annapolis",
+      "EvalCriteria": "Answer must have the word 'Annapolis' in its response."
     },
     {
       "Input": "Summarize this: 'The vendor rejected the proposed terms.'",
@@ -10,9 +10,9 @@
       "EvalCriteria": "Summary must preserve key decision outcome."
     },
     {
-      "Input": "What's 5 multiplied by 6?",
+      "Input": "Calculate 5 multiplied by 6?",
       "GroundTruth": "30",
-      "EvalCriteria": "Answer must match 30 exactly."
+      "EvalCriteria": "Response must include '30'."
     }
   ]
   
